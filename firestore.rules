@@ -1,3 +1,4 @@
+rules_version = "2";
 service cloud.firestore {
   match /databases/{database}/documents {
     // Messages:
@@ -6,14 +7,7 @@ service cloud.firestore {
     //   - Validation: Check name is same as auth token and text length below 300 char or that imageUrl is a URL.
     //   - Deletes are not allowed.
     match /messages/{messageId} {
-      allow read;
-      allow create, update: if request.auth != null
-                    && request.resource.data.name == request.auth.token.name
-                    && (request.resource.data.text is string
-                      && request.resource.data.text.size() <= 300
-                      || request.resource.data.imageUrl is string
-                      && request.resource.data.imageUrl.matches('https?://.*'));
-      allow delete: if false;
+      allow read, create, update;
     }
     // FCM Tokens:
     //   - Anyone can write their token.
@@ -21,6 +15,9 @@ service cloud.firestore {
     match /fcmTokens/{token} {
       allow read: if false;
       allow write;
+    }
+    match /videos/{document=**} {
+      allow read, write: if true;
     }
   }
 }
